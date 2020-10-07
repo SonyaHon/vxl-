@@ -6,6 +6,7 @@
 #include "d3/Transform.h"
 #include "shader/Shader.h"
 #include "utils/FileLoader.h"
+#include "game/controllers/FreeCameraController.h"
 #include <vector>
 #include <filesystem>
 
@@ -24,7 +25,7 @@ int main() {
 #endif
 
     // settings
-    WindowSettings windowSettings = {1280, 720, (char*) "VXL"};
+    WindowSettings windowSettings = {1280, 720, (char *) "VXL"};
 
     GLFWwindow *window = glfwCreateWindow(windowSettings.width, windowSettings.height, windowSettings.title, nullptr,
                                           nullptr);
@@ -34,6 +35,9 @@ int main() {
     }
 
     glfwMakeContextCurrent(window);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
+    glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
 
     if (glewInit() != GLEW_OK) {
         exit(-1);
@@ -48,9 +52,9 @@ int main() {
 
 
     FileLoader shaderLoader = FileLoader("res/shaders");
-    Shader shader = Shader(std::vector<ShaderData> {
-        ShaderData {GL_VERTEX_SHADER, shaderLoader.loadFileAsString("plain/vertex.glsl").c_str()},
-        ShaderData {GL_FRAGMENT_SHADER, shaderLoader.loadFileAsString("plain/fragment.glsl").c_str()}
+    Shader shader = Shader(std::vector<ShaderData>{
+            ShaderData{GL_VERTEX_SHADER, shaderLoader.loadFileAsString("plain/vertex.glsl").c_str()},
+            ShaderData{GL_FRAGMENT_SHADER, shaderLoader.loadFileAsString("plain/fragment.glsl").c_str()}
     });
 
     std::vector<float> vertices = {
@@ -68,9 +72,13 @@ int main() {
     Camera camera = Camera(45, 1280.0 / 720.0, 0.001, 1000.0);
     camera.translateZ(4);
 
+    FreeCameraController cameraController = FreeCameraController(&camera, window);
+
     do {
         glClearColor(0.22, 0.22, 0.22, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        cameraController.update();
 
         shader.use();
         shader.applyTransform(&transform);

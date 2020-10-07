@@ -49,7 +49,7 @@ public:
 
     void translateZ(float);
 
-
+    [[nodiscard]] glm::vec3 getDirection() const;
 };
 
 

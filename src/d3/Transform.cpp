@@ -3,6 +3,7 @@
 //
 
 #include "Transform.h"
+#include <glm/gtx/rotate_vector.hpp>
 
 Transform::Transform() {
     position = glm::vec3(0, 0, 0);
@@ -81,5 +82,12 @@ void Transform::translateY(float value) {
 
 void Transform::translateZ(float value) {
     translate(0, 0, value);
+}
+
+glm::vec3 Transform::getDirection() const {
+    glm::vec3 dir = glm::vec3(0, 0, 1);
+    dir = glm::rotateX(dir, glm::radians(rotation.x * -1));
+    dir = glm::rotateY(dir, glm::radians(rotation.y * -1));
+    return glm::normalize(dir);
 }
 
