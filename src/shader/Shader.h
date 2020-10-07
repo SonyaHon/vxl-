@@ -23,7 +23,7 @@ struct Shader {
     GLuint id;
 };
 
-Shader createShader(std::vector<ShaderData> shadersData) {
+Shader createShader(const std::vector<ShaderData>& shadersData) {
     GLuint programId = glCreateProgram();
     std::vector<GLuint> shaderIds = std::vector<GLuint>(shadersData.size());
 

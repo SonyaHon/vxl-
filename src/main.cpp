@@ -3,11 +3,10 @@
 #include <GLFW/glfw3.h>
 #include "settings/window-settings.h"
 #include "shader/Shader.h"
-#include "components//MeshData.h"
+#include "d3/MeshData.h"
+#include "d3/Transform.h"
 #include <vector>
 #include <filesystem>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
     glViewport(0, 0, width, height);
@@ -18,13 +17,13 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
     // settings
-    WindowSettings windowSettings = {1280, 720, "VXL"};
-    ViewportSettings viewportSettings = {1280, 720};
+    WindowSettings windowSettings = {1280, 720, (char*) "VXL"};
 
     GLFWwindow *window = glfwCreateWindow(windowSettings.width, windowSettings.height, windowSettings.title, nullptr,
                                           nullptr);
@@ -38,6 +37,10 @@ int main() {
     if (glewInit() != GLEW_OK) {
         exit(-1);
     }
+
+    int viewportWidth, viewportHeight;
+    glfwGetFramebufferSize(window, &viewportWidth, &viewportHeight);
+    ViewportSettings viewportSettings = {viewportWidth, viewportHeight};
 
     glViewport(0, 0, viewportSettings.width, viewportSettings.height);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -55,9 +58,9 @@ int main() {
     std::vector<unsigned int> indices = {
             0, 1, 2
     };
-    MeshData meshData = createMeshData(vertices, indices);
+    MeshData meshData = MeshData(vertices, indices);
 
-    Transform transform = getIdentityTransform();
+    Transform transform = Transform();
 
     do {
         glClearColor(0.22, 0.22, 0.22, 1.0);
@@ -65,16 +68,18 @@ int main() {
 
 
         useShader(&shader);
-        applyTransformMatrix(&shader, &transform);
 
-        drawMeshData(&meshData);
+        meshData.draw();
 
         stopUsingShader();
 
         glfwPollEvents();
         glfwSwapBuffers(window);
 
-        std::cout << glGetError() << std::endl;
+        unsigned int glError = glGetError();
+        if (glError != 0) {
+            std::cout << "GL ERROR: " << glError << std::endl;
+        }
     } while (!glfwWindowShouldClose(window));
 
     return 0;
