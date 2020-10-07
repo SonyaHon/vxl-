@@ -20,6 +20,10 @@ public:
 
     ~MeshData();
 
+    void addNormals(std::vector<float>);
+
+    void addColors(std::vector<float>);
+
     void draw();
 };
 

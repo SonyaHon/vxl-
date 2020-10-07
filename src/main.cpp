@@ -7,8 +7,8 @@
 #include "shader/Shader.h"
 #include "utils/FileLoader.h"
 #include "game/controllers/FreeCameraController.h"
+#include "game/primitive.h"
 #include <vector>
-#include <filesystem>
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
     glViewport(0, 0, width, height);
@@ -52,9 +52,13 @@ int main() {
 
 
     FileLoader shaderLoader = FileLoader("res/shaders");
-    Shader shader = Shader(std::vector<ShaderData>{
+    Shader plainShader = Shader(std::vector<ShaderData>{
             ShaderData{GL_VERTEX_SHADER, shaderLoader.loadFileAsString("plain/vertex.glsl").c_str()},
             ShaderData{GL_FRAGMENT_SHADER, shaderLoader.loadFileAsString("plain/fragment.glsl").c_str()}
+    });
+    Shader colorShader = Shader(std::vector<ShaderData>{
+            ShaderData{GL_VERTEX_SHADER, shaderLoader.loadFileAsString("color/vertex.glsl").c_str()},
+            ShaderData{GL_FRAGMENT_SHADER, shaderLoader.loadFileAsString("color/fragment.glsl").c_str()}
     });
 
     std::vector<float> vertices = {
@@ -68,6 +72,10 @@ int main() {
     MeshData meshData = MeshData(vertices, indices);
 
     Transform transform = Transform();
+    Transform plainTransfrom = Transform();
+    plainTransfrom.translateY(-2);
+
+    MeshData plain = createPlainPrimitive(glm::vec3(1, 0.5, 0));
 
     Camera camera = Camera(45, 1280.0 / 720.0, 0.001, 1000.0);
     camera.translateZ(4);
@@ -78,13 +86,23 @@ int main() {
         glClearColor(0.22, 0.22, 0.22, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        transform.rotateY(0.5);
+
         cameraController.update();
 
-        shader.use();
-        shader.applyTransform(&transform);
-        shader.applyCamera(&camera);
+        plainShader.use();
+        plainShader.applyTransform(&transform);
+        plainShader.applyCamera(&camera);
 
         meshData.draw();
+
+        Shader::unuse();
+
+        colorShader.use();
+        colorShader.applyTransform(&plainTransfrom);
+        colorShader.applyCamera(&camera);
+
+        plain.draw();
 
         Shader::unuse();
 

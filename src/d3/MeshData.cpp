@@ -28,7 +28,8 @@ MeshData::MeshData(std::vector<float> vertices, std::vector<unsigned int> indice
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    usedVBOs = {indicesVBO, verticesVBO};
+    usedVBOs.push_back(indicesVBO);
+    usedVBOs.push_back(verticesVBO);
 }
 
 MeshData::~MeshData() {
@@ -44,8 +45,36 @@ void MeshData::draw() {
 
     glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, nullptr);
 
-    for(unsigned int usedAttribute : usedAttributes) {
+    for (unsigned int usedAttribute : usedAttributes) {
         glDisableVertexAttribArray(usedAttribute);
     }
     glBindVertexArray(0);
+}
+
+void MeshData::addNormals(std::vector<float> normals) {
+    glBindVertexArray(vaoId);
+    GLuint vbo;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * normals.size(), normals.data(), GL_STATIC_DRAW);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+    glDisableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    usedVBOs.push_back(vbo);
+}
+
+void MeshData::addColors(std::vector<float> colors) {
+    glBindVertexArray(vaoId);
+    GLuint vbo;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * colors.size(), colors.data(), GL_STATIC_DRAW);
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+    glDisableVertexAttribArray(2);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    usedVBOs.push_back(vbo);
 }
