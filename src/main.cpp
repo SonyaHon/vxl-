@@ -2,9 +2,10 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "settings/window-settings.h"
-#include "shader/Shader.h"
 #include "d3/MeshData.h"
 #include "d3/Transform.h"
+#include "shader/Shader.h"
+#include "utils/FileLoader.h"
 #include <vector>
 #include <filesystem>
 
@@ -45,9 +46,11 @@ int main() {
     glViewport(0, 0, viewportSettings.width, viewportSettings.height);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    Shader shader = createShader(std::vector<ShaderData>{
-            ShaderData{GL_VERTEX_SHADER, std::filesystem::path("plain/vertex.glsl")},
-            ShaderData{GL_FRAGMENT_SHADER, std::filesystem::path("plain/fragment.glsl")}
+
+    FileLoader shaderLoader = FileLoader("res/shaders");
+    Shader shader = Shader(std::vector<ShaderData> {
+        ShaderData {GL_VERTEX_SHADER, shaderLoader.loadFileAsString("plain/vertex.glsl").c_str()},
+        ShaderData {GL_FRAGMENT_SHADER, shaderLoader.loadFileAsString("plain/fragment.glsl").c_str()}
     });
 
     std::vector<float> vertices = {
@@ -62,16 +65,20 @@ int main() {
 
     Transform transform = Transform();
 
+    Camera camera = Camera(45, 1280.0 / 720.0, 0.001, 1000.0);
+    camera.translateZ(4);
+
     do {
         glClearColor(0.22, 0.22, 0.22, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
 
-
-        useShader(&shader);
+        shader.use();
+        shader.applyTransform(&transform);
+        shader.applyCamera(&camera);
 
         meshData.draw();
 
-        stopUsingShader();
+        Shader::unuse();
 
         glfwPollEvents();
         glfwSwapBuffers(window);
