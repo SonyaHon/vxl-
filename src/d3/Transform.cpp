@@ -91,3 +91,27 @@ glm::vec3 Transform::getDirection() const {
     return glm::normalize(dir);
 }
 
+void Transform::setScale(float x, float y, float z) {
+    scale = glm::vec3(x, y, z);
+}
+
+bool Transform::operator==(const Transform &rhs) const {
+    return position == rhs.position &&
+           rotation == rhs.rotation &&
+           scale == rhs.scale;
+}
+
+bool Transform::operator!=(const Transform &rhs) const {
+    return !(rhs == *this);
+}
+
+Transform Transform::operator+(const Transform &right) const {
+    glm::vec3 newScale = glm::vec3(this->scale.x * right.scale.x, this->scale.y * right.scale.y, this->scale.z * right.scale.z);
+    return Transform(this->position + right.position, this->rotation + right.rotation, newScale);
+}
+
+void Transform::setScaleUniform(float value) {
+    setScale(value, value, value);
+}
+
+

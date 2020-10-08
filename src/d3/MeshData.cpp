@@ -62,6 +62,7 @@ void MeshData::addNormals(std::vector<float> normals) {
     glDisableVertexAttribArray(1);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+    usedAttributes.push_back(1);
     usedVBOs.push_back(vbo);
 }
 
@@ -76,5 +77,6 @@ void MeshData::addColors(std::vector<float> colors) {
     glDisableVertexAttribArray(2);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+    usedAttributes.push_back(2);
     usedVBOs.push_back(vbo);
 }

@@ -50,7 +50,18 @@ public:
     void translateZ(float);
 
     [[nodiscard]] glm::vec3 getDirection() const;
+
+    void setScale(float x, float y, float z);
+
+    bool operator==(const Transform &rhs) const;
+
+    bool operator!=(const Transform &rhs) const;
+
+    Transform operator+(const Transform& right) const;
+
+    void setScaleUniform(float value);
 };
+
 
 
 #endif //VXL___TRANSFORM_H

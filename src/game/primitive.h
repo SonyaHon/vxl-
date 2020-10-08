@@ -26,10 +26,10 @@ MeshData createPlainPrimitive(glm::vec3 color) {
     };
 
     std::vector<glm::vec3> colors{
-            color,
-            color,
-            color,
-            color
+            glm::vec3(color),
+            glm::vec3(color),
+            glm::vec3(color),
+            glm::vec3(color)
     };
 
     std::vector<unsigned int> indices{

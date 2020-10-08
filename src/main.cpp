@@ -8,9 +8,10 @@
 #include "utils/FileLoader.h"
 #include "game/controllers/FreeCameraController.h"
 #include "game/primitive.h"
+#include "d3/GameObject.h"
 #include <vector>
 
-void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
+void framebuffer_size_callback([[maybe_unused]] GLFWwindow *window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
@@ -49,6 +50,7 @@ int main() {
 
     glViewport(0, 0, viewportSettings.width, viewportSettings.height);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glEnable(GL_DEPTH_TEST);
 
 
     FileLoader shaderLoader = FileLoader("res/shaders");
@@ -61,50 +63,38 @@ int main() {
             ShaderData{GL_FRAGMENT_SHADER, shaderLoader.loadFileAsString("color/fragment.glsl").c_str()}
     });
 
-    std::vector<float> vertices = {
-            0, 0.5, 0,
-            -0.5, -0.5, 0,
-            0.5, -0.5, 0
-    };
-    std::vector<unsigned int> indices = {
-            0, 1, 2
-    };
-    MeshData meshData = MeshData(vertices, indices);
 
-    Transform transform = Transform();
-    Transform plainTransfrom = Transform();
-    plainTransfrom.translateY(-2);
-
-    MeshData plain = createPlainPrimitive(glm::vec3(1, 0.5, 0));
 
     Camera camera = Camera(45, 1280.0 / 720.0, 0.001, 1000.0);
     camera.translateZ(4);
-
     FreeCameraController cameraController = FreeCameraController(&camera, window);
+
+    GameObject pl = GameObject("test");
+    pl.setMaterial(new Material(&colorShader));
+    MeshData meshData = createPlainPrimitive(glm::vec3(1, 1, 1));
+    pl.setMeshData(&meshData);
+
+    GameObject child = GameObject("child");
+    child.setMaterial(new Material(&colorShader));
+    MeshData childMeshData = createPlainPrimitive(glm::vec3(0, 1, 1));
+    child.setMeshData(&childMeshData);
+    child.getTransform()->translateY(10);
+    child.getTransform()->setScaleUniform(0.2);
+
+    pl.addChild(&child);
+    pl.getTransform()->setScale(100, 1, 100);
+    pl.getTransform()->translateY(-12);
 
     do {
         glClearColor(0.22, 0.22, 0.22, 1.0);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        transform.rotateY(0.5);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         cameraController.update();
 
-        plainShader.use();
-        plainShader.applyTransform(&transform);
-        plainShader.applyCamera(&camera);
+        child.getTransform()->rotateY(0.2);
+        pl.getTransform()->rotateY(0.2);
 
-        meshData.draw();
-
-        Shader::unuse();
-
-        colorShader.use();
-        colorShader.applyTransform(&plainTransfrom);
-        colorShader.applyCamera(&camera);
-
-        plain.draw();
-
-        Shader::unuse();
+        pl.render(&camera);
 
         glfwPollEvents();
         glfwSwapBuffers(window);
