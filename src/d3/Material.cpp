@@ -21,3 +21,11 @@ void Material::end() {
 }
 
 Material::Material(Shader *shader) : shader(shader) {}
+
+void Material::applyAmbientLight(AmbientLight *ambientLight) {
+    shader->applyAmbientLight(ambientLight);
+}
+
+void Material::applyDirectionalLight(DirectionalLight *directionalLight) {
+    shader->applyDirectionalLight(directionalLight);
+}

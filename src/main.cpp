@@ -9,6 +9,7 @@
 #include "game/controllers/FreeCameraController.h"
 #include "game/primitive.h"
 #include "d3/GameObject.h"
+#include "d3/Scene.h"
 #include <vector>
 
 void framebuffer_size_callback([[maybe_unused]] GLFWwindow *window, int width, int height) {
@@ -59,10 +60,15 @@ int main() {
             ShaderData{GL_FRAGMENT_SHADER, shaderLoader.loadFileAsString("plain/fragment.glsl").c_str()}
     });
     Shader colorShader = Shader(std::vector<ShaderData>{
-            ShaderData{GL_VERTEX_SHADER, shaderLoader.loadFileAsString("color/vertex.glsl").c_str()},
-            ShaderData{GL_FRAGMENT_SHADER, shaderLoader.loadFileAsString("color/fragment.glsl").c_str()}
+            ShaderData{
+                    GL_VERTEX_SHADER,
+                    shaderLoader.loadFileAsString("color/vertex.glsl").c_str()
+            },
+            ShaderData{
+                    GL_FRAGMENT_SHADER,
+                    shaderLoader.loadFileAsString("color/fragment.glsl").c_str()
+            }
     });
-
 
 
     Camera camera = Camera(45, 1280.0 / 720.0, 0.001, 1000.0);
@@ -76,25 +82,32 @@ int main() {
 
     GameObject child = GameObject("child");
     child.setMaterial(new Material(&colorShader));
-    MeshData childMeshData = createPlainPrimitive(glm::vec3(0, 1, 1));
+    MeshData childMeshData = createCubePrimitive(glm::vec3(0, 1, 1));
     child.setMeshData(&childMeshData);
     child.getTransform()->translateY(10);
-    child.getTransform()->setScaleUniform(0.2);
+    child.getTransform()->setScaleUniform(0.1);
 
     pl.addChild(&child);
-    pl.getTransform()->setScale(100, 1, 100);
+    pl.getTransform()->setScale(100, 100, 100);
     pl.getTransform()->translateY(-12);
 
+    Scene scene = Scene(&camera);
+    scene.addGameObject(&pl);
+
+    scene.setAmbientLight(new AmbientLight(0.2, glm::vec3(1, 1, 0.95)));
+    scene.setDirectionalLight(new DirectionalLight(
+            glm::normalize(glm::vec3(1, -1, 1)),
+            glm::vec3(1, 1, 0.95),
+            0.8));
+
     do {
-        glClearColor(0.22, 0.22, 0.22, 1.0);
+        glClearColor(0.1, 0.1, 0.1, 1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         cameraController.update();
 
-        child.getTransform()->rotateY(0.2);
-        pl.getTransform()->rotateY(0.2);
-
-        pl.render(&camera);
+//        scene.renderDepthMaps();
+        scene.render();
 
         glfwPollEvents();
         glfwSwapBuffers(window);

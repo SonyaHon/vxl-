@@ -9,8 +9,14 @@ uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 
 out vec3 fragColor;
+out vec3 fragPosition;
+out vec3 fragNormal;
 
 void main() {
-    gl_Position = projectionMatrix * viewMatrix * transformMatrix * vec4(inPosition, 1.0);
+    vec4 worldPos = transformMatrix * vec4(inPosition, 1.0);
+    gl_Position = projectionMatrix * viewMatrix * worldPos;
+
     fragColor = inColor;
+    fragPosition = vec3(worldPos);
+    fragNormal = mat3(transpose(inverse(transformMatrix))) * inNormal;
 }

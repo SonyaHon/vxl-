@@ -4,6 +4,7 @@
 
 #include "GameObject.h"
 #include "Camera.h"
+#include "../light/AmbientLight.h"
 
 GameObject::GameObject() {
     transform = new Transform();
@@ -39,17 +40,6 @@ void GameObject::addChild(GameObject *gameObject) {
     children.push_back(gameObject);
 }
 
-void GameObject::removeChild(GameObject *gameObject) {
-    for (size_t i = 0; i < children.size(); i++) {
-        GameObject *child = children[i];
-        if (child != gameObject) continue;
-
-        children.erase(children.begin() + i);
-        children.shrink_to_fit();
-        break;
-    }
-}
-
 void GameObject::removeChild(unsigned int index) {
     if (index >= children.size()) return;
     children.erase(children.begin() + index);
@@ -59,15 +49,15 @@ void GameObject::removeChild(unsigned int index) {
 void GameObject::removeChild(const char *tag) {
     for (size_t i = 0; i < children.size(); i++) {
         GameObject *child = children[i];
-        if (strcmp(child->tag, tag) == 0) continue;
-
-        children.erase(children.begin() + i);
-        children.shrink_to_fit();
-        break;
+        if (child->hasTag(tag)) {
+            removeChild(i);
+            break;
+        }
     }
 }
 
-void GameObject::render(Camera* camera, Transform* rootTransform) {
+void GameObject::render(Camera *camera, AmbientLight *ambientLight, DirectionalLight *directionalLight,
+                        Transform *rootTransform) {
     if (material != nullptr && meshData != nullptr) {
         // render self
         material->begin();
@@ -75,19 +65,21 @@ void GameObject::render(Camera* camera, Transform* rootTransform) {
         Transform resultTransform = rootTransform != nullptr ? (*rootTransform + *transform) : *transform;
         material->applyTransform(&resultTransform);
         material->applyCamera(camera);
+        material->applyAmbientLight(ambientLight);
+        material->applyDirectionalLight(directionalLight);
 
         meshData->draw();
 
         material->end();
     }
 
-    for (GameObject* child : children) {
-        child->render(camera, transform);
+    for (GameObject *child : children) {
+        child->render(camera, ambientLight, directionalLight, transform);
     }
 }
 
-void GameObject::render(Camera* camera) {
-    render(camera, nullptr);
+void GameObject::render(Camera *camera, AmbientLight *ambientLight, DirectionalLight *directionalLight) {
+    render(camera, ambientLight, directionalLight, nullptr);
 }
 
 const char *GameObject::getTag() const {
@@ -100,6 +92,15 @@ Transform *GameObject::getTransform() const {
 
 Material *GameObject::getMaterial() const {
     return material;
+}
+
+bool GameObject::hasTag(const char *checkTag) {
+    return strcmp(tag, checkTag) != 0;
+}
+
+void GameObject::clearChildren() {
+    children.clear();
+    children.shrink_to_fit();
 }
 
 

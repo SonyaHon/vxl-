@@ -59,7 +59,7 @@ void Shader::use() const {
     glUseProgram(programId);
 }
 
-GLuint Shader::getUniformLocation(const char* location) {
+GLuint Shader::getUniformLocation(const char *location) {
     return glGetUniformLocation(programId, location);
 }
 
@@ -83,7 +83,18 @@ void Shader::applyTransform(const Transform *transform) {
     applyMat4Uniform("transformMatrix", transform->getTransformationMatrix());
 }
 
-void Shader::applyCamera(const Camera * camera) {
+void Shader::applyCamera(const Camera *camera) {
     applyMat4Uniform("projectionMatrix", camera->getProjectionMatrix());
     applyMat4Uniform("viewMatrix", camera->getViewMatrix());
+}
+
+void Shader::applyAmbientLight(AmbientLight *ambientLight) {
+    applyFloatUniform("ambientStrength", ambientLight->getStrength());
+    applyVec3Uniform("ambientColor", ambientLight->getColor());
+}
+
+void Shader::applyDirectionalLight(DirectionalLight *directionalLight) {
+    applyFloatUniform("directionalStrength", directionalLight->getStrength());
+    applyVec3Uniform("directionalDirection", directionalLight->getDirection());
+    applyVec3Uniform("directionalColor", directionalLight->getColor());
 }

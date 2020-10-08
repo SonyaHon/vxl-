@@ -10,6 +10,8 @@
 #include <glm/glm.hpp>
 #include "../d3/Transform.h"
 #include "../d3/Camera.h"
+#include "../light/AmbientLight.h"
+#include "../light/DirectionalLight.h"
 
 struct ShaderData {
     GLenum type;
@@ -40,6 +42,10 @@ public:
     void applyTransform(const Transform*);
 
     void applyCamera(const Camera*);
+
+    void applyAmbientLight(AmbientLight *ambientLight);
+
+    void applyDirectionalLight(DirectionalLight *directionalLight);
 
 private:
     GLuint getUniformLocation(const char *);

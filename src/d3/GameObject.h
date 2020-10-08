@@ -10,6 +10,8 @@
 #include "MeshData.h"
 #include "Material.h"
 #include "Camera.h"
+#include "../light/AmbientLight.h"
+#include "../light/DirectionalLight.h"
 #include <vector>
 
 class GameObject {
@@ -35,21 +37,24 @@ public:
 
     void addChild(GameObject *gameObject);
 
-    void removeChild(GameObject *gameObject);
-
     void removeChild(unsigned int index);
 
     void removeChild(const char *tag);
 
-    void render(Camera *camera, Transform *rootTransform);
+    void clearChildren();
 
-    void render(Camera *camera);
+    void
+    render(Camera *camera, AmbientLight *ambientLight, DirectionalLight *directionalLight, Transform *rootTransform);
+
+    void render(Camera *camera, AmbientLight *ambientLight, DirectionalLight *directionalLight);
 
     [[nodiscard]] const char *getTag() const;
 
     [[nodiscard]] Transform *getTransform() const;
 
     [[nodiscard]] Material *getMaterial() const;
+
+    bool hasTag(const char *checkTag);
 };
 
 

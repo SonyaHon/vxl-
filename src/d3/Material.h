@@ -8,6 +8,8 @@
 
 #include "Camera.h"
 #include "../shader/Shader.h"
+#include "../light/AmbientLight.h"
+#include "../light/DirectionalLight.h"
 
 class Material {
     Shader* shader;
@@ -22,6 +24,10 @@ public:
     void applyTransform(Transform *transform);
 
     void end();
+
+    void applyAmbientLight(AmbientLight *ambientLight);
+
+    void applyDirectionalLight(DirectionalLight *directionalLight);
 };
 
 
