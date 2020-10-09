@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 
 class DirectionalLight {
+    glm::vec3 position = glm::vec3(10, 10, 10);
     glm::vec3 direction;
     glm::vec3 color;
     float strength;
@@ -27,6 +28,8 @@ public:
     [[nodiscard]] float getStrength() const;
 
     void setStrength(float strength);
+
+    glm::mat4 getLightSpaceMatrix();
 };
 
 

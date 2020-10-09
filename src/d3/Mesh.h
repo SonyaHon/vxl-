@@ -12,13 +12,17 @@
 class Mesh {
     std::vector<glm::vec3> vertices;
     std::vector<glm::vec3> colors;
+    std::vector<glm::vec2> uvs;
     std::vector<glm::vec3> normals;
     std::vector<unsigned int> indices;
+    bool useUvs = false;
 
 public:
     void setVertices(std::vector<glm::vec3> vertices);
 
     void setColors(std::vector<glm::vec3> colors);
+
+    void setUvs(std::vector<glm::vec2> uvs);
 
     void setNormals(std::vector<glm::vec3> normals);
 

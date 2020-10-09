@@ -23,7 +23,7 @@ class Shader {
     std::vector<GLuint> shaderIds;
 
 public:
-    Shader(std::vector<ShaderData>);
+    explicit Shader(std::vector<ShaderData>);
 
     ~Shader();
 
@@ -46,6 +46,8 @@ public:
     void applyAmbientLight(AmbientLight *ambientLight);
 
     void applyDirectionalLight(DirectionalLight *directionalLight);
+
+    void applyDirectionalLightDepth(DirectionalLight *directionalLight);
 
 private:
     GLuint getUniformLocation(const char *);

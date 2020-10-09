@@ -39,10 +39,6 @@ void Scene::clearGameObjects() {
     gameObjects.shrink_to_fit();
 }
 
-Scene::Scene(Camera *camera) {
-    mainCamera = camera;
-}
-
 AmbientLight *Scene::getAmbientLight() const {
     return ambientLight;
 }
@@ -57,5 +53,41 @@ DirectionalLight *Scene::getDirectionalLight() const {
 
 void Scene::setDirectionalLight(DirectionalLight *directionalLight) {
     Scene::directionalLight = directionalLight;
+}
+
+void Scene::renderDirectionalLightDepthMap() {
+    if (directionalLightDepthBuffer == 0) {
+        glGenFramebuffers(1, &directionalLightDepthBuffer);
+        glGenTextures(1, &directionalLightDepthMap);
+        glBindTexture(GL_TEXTURE_2D, directionalLightDepthMap);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glBindFramebuffer(GL_FRAMEBUFFER, directionalLightDepthBuffer);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, directionalLightDepthMap, 0);
+        glDrawBuffer(GL_NONE);
+        glReadBuffer(GL_NONE);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+    glViewport(0, 0, 1024, 1024);
+    glBindFramebuffer(GL_FRAMEBUFFER, directionalLightDepthBuffer);
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    for (auto gameObject : gameObjects) {
+        gameObject->renderDirectionalLightDepthMap(directionalLight);
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, viewportSettings->width, viewportSettings->height);
+}
+
+Scene::Scene(Camera* mainCamera, ViewportSettings *viewportSettings) : mainCamera(mainCamera), viewportSettings(viewportSettings) {}
+
+GLuint Scene::getDepthTexture() const {
+    return directionalLightDepthMap;
 }
 

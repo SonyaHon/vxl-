@@ -52,6 +52,7 @@ int main() {
     glViewport(0, 0, viewportSettings.width, viewportSettings.height);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_MULTISAMPLE);
 
 
     FileLoader shaderLoader = FileLoader("res/shaders");
@@ -69,6 +70,26 @@ int main() {
                     shaderLoader.loadFileAsString("color/fragment.glsl").c_str()
             }
     });
+    Shader depthShader = Shader(std::vector<ShaderData>{
+            ShaderData{
+                    GL_VERTEX_SHADER,
+                    shaderLoader.loadFileAsString("directional-depth/vertex.glsl").c_str()
+            },
+            ShaderData{
+                    GL_FRAGMENT_SHADER,
+                    shaderLoader.loadFileAsString("directional-depth/fragment.glsl").c_str()
+            }
+    });
+    Shader textureShader = Shader(std::vector<ShaderData>{
+            ShaderData{
+                    GL_VERTEX_SHADER,
+                    shaderLoader.loadFileAsString("textured/vertex.glsl").c_str()
+            },
+            ShaderData{
+                    GL_FRAGMENT_SHADER,
+                    shaderLoader.loadFileAsString("textured/fragment.glsl").c_str()
+            }
+    });
 
 
     Camera camera = Camera(45, 1280.0 / 720.0, 0.001, 1000.0);
@@ -76,22 +97,28 @@ int main() {
     FreeCameraController cameraController = FreeCameraController(&camera, window);
 
     GameObject pl = GameObject("test");
-    pl.setMaterial(new Material(&colorShader));
-    MeshData meshData = createPlainPrimitive(glm::vec3(1, 1, 1));
+    pl.setMaterial(new Material(&textureShader, &depthShader));
+    MeshData meshData = createPlainPrimitive(std::vector<glm::vec2>{
+        glm::vec2(0, 0),
+        glm::vec2(1, 0),
+        glm::vec2(0, 1),
+        glm::vec2(1, 1)
+    });
     pl.setMeshData(&meshData);
 
     GameObject child = GameObject("child");
-    child.setMaterial(new Material(&colorShader));
-    MeshData childMeshData = createCubePrimitive(glm::vec3(0, 1, 1));
+    child.setMaterial(new Material(&colorShader, &depthShader));
+    child.getMaterial()->setCastsShadows(true);
+    MeshData childMeshData = createPlainPrimitive(glm::vec3(0, 1, 1));
     child.setMeshData(&childMeshData);
     child.getTransform()->translateY(10);
-    child.getTransform()->setScaleUniform(0.1);
+    child.getTransform()->setScaleUniform(0.2);
 
     pl.addChild(&child);
-    pl.getTransform()->setScale(100, 100, 100);
-    pl.getTransform()->translateY(-12);
+    pl.getTransform()->setScale(10, 10, 10);
+//    pl.getTransform()->translateY();
 
-    Scene scene = Scene(&camera);
+    Scene scene = Scene(&camera, &viewportSettings);
     scene.addGameObject(&pl);
 
     scene.setAmbientLight(new AmbientLight(0.2, glm::vec3(1, 1, 0.95)));
@@ -106,7 +133,10 @@ int main() {
 
         cameraController.update();
 
-//        scene.renderDepthMaps();
+        scene.renderDirectionalLightDepthMap();
+
+        pl.getMaterial()->setTexture2D(scene.getDepthTexture());
+
         scene.render();
 
         glfwPollEvents();

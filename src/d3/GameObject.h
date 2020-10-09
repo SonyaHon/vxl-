@@ -55,6 +55,10 @@ public:
     [[nodiscard]] Material *getMaterial() const;
 
     bool hasTag(const char *checkTag);
+
+    void renderDirectionalLightDepthMap(DirectionalLight *directionalLight);
+
+    void renderDirectionalLightDepthMap(DirectionalLight *directionalLight, Transform *rootTransform);
 };
 
 

@@ -80,3 +80,26 @@ void MeshData::addColors(std::vector<float> colors) {
     usedAttributes.push_back(2);
     usedVBOs.push_back(vbo);
 }
+
+void MeshData::drawDepth() const {
+    glBindVertexArray(vaoId);
+    glEnableVertexAttribArray(0);
+    glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, nullptr);
+    glDisableVertexAttribArray(0);
+    glBindVertexArray(0);
+}
+
+void MeshData::addUvs(std::vector<float> uvs) {
+    glBindVertexArray(vaoId);
+    GLuint vbo;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * uvs.size(), uvs.data(), GL_STATIC_DRAW);
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);
+    glDisableVertexAttribArray(2);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    usedAttributes.push_back(2);
+    usedVBOs.push_back(vbo);
+}

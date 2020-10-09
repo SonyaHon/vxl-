@@ -11,3 +11,4 @@ glm::mat4 Camera::getProjectionMatrix() const {
     glm::mat4 mat = glm::perspective(glm::radians(fovy), aspect, nearPlane, farPlane);
     return mat;
 }
+

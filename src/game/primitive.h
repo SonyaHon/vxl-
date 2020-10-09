@@ -5,6 +5,8 @@
 #ifndef VXL___PRIMITIVE_H
 #define VXL___PRIMITIVE_H
 
+#include <utility>
+
 #include "../d3/MeshData.h"
 #include "../d3/Mesh.h"
 
@@ -40,6 +42,37 @@ MeshData createPlainPrimitive(glm::vec3 color) {
     mesh.setVertices(vertices);
     mesh.setNormals(normals);
     mesh.setColors(colors);
+    mesh.setIndices(indices);
+
+    return mesh.commit();
+}
+
+
+MeshData createPlainPrimitive(std::vector<glm::vec2> uvs) {
+    Mesh mesh = Mesh();
+
+    std::vector<glm::vec3> vertices{
+            glm::vec3(-0.5, 0, -0.5),
+            glm::vec3(0.5, 0, -0.5),
+            glm::vec3(-0.5, 0, 0.5),
+            glm::vec3(0.5, 0, 0.5)
+    };
+
+    std::vector<glm::vec3> normals{
+            glm::vec3(0, 1, 0),
+            glm::vec3(0, 1, 0),
+            glm::vec3(0, 1, 0),
+            glm::vec3(0, 1, 0)
+    };
+
+    std::vector<unsigned int> indices{
+            0, 2, 1,
+            1, 2, 3
+    };
+
+    mesh.setVertices(vertices);
+    mesh.setNormals(normals);
+    mesh.setUvs(std::move(uvs));
     mesh.setIndices(indices);
 
     return mesh.commit();

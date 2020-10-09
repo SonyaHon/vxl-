@@ -11,6 +11,7 @@ void Mesh::setVertices(std::vector<glm::vec3> vertices) {
 }
 
 void Mesh::setColors(std::vector<glm::vec3> colors) {
+    useUvs = false;
     Mesh::colors = std::move(colors);
 }
 
@@ -38,16 +39,31 @@ MeshData Mesh::commit() {
         floatNormals.push_back(vec.z);
     }
 
-    std::vector<float> floatColors;
-    for (auto &vec : colors) {
-        floatColors.push_back(vec.r);
-        floatColors.push_back(vec.g);
-        floatColors.push_back(vec.b);
-    }
 
     MeshData meshData = MeshData(floatVerts, indices);
     meshData.addNormals(floatNormals);
-    meshData.addColors(floatColors);
+
+    if (useUvs) {
+        std::vector<float> floatUvs;
+        for (auto &vec : uvs) {
+            floatUvs.push_back(vec.x);
+            floatUvs.push_back(vec.y);
+        }
+        meshData.addUvs(floatUvs);
+    } else {
+        std::vector<float> floatColors;
+        for (auto &vec : colors) {
+            floatColors.push_back(vec.r);
+            floatColors.push_back(vec.g);
+            floatColors.push_back(vec.b);
+        }
+        meshData.addColors(floatColors);
+    }
 
     return meshData;
+}
+
+void Mesh::setUvs(std::vector<glm::vec2> uvs) {
+    useUvs = true;
+    Mesh::uvs = std::move(uvs);
 }

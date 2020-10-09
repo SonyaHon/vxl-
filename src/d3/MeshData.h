@@ -24,7 +24,11 @@ public:
 
     void addColors(std::vector<float>);
 
+    void addUvs(std::vector<float>);
+
     void draw();
+
+    void drawDepth() const;
 };
 
 

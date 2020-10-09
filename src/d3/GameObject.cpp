@@ -58,11 +58,11 @@ void GameObject::removeChild(const char *tag) {
 
 void GameObject::render(Camera *camera, AmbientLight *ambientLight, DirectionalLight *directionalLight,
                         Transform *rootTransform) {
+    Transform resultTransform = rootTransform != nullptr ? (*rootTransform + *transform) : *transform;
     if (material != nullptr && meshData != nullptr) {
         // render self
         material->begin();
 
-        Transform resultTransform = rootTransform != nullptr ? (*rootTransform + *transform) : *transform;
         material->applyTransform(&resultTransform);
         material->applyCamera(camera);
         material->applyAmbientLight(ambientLight);
@@ -74,7 +74,7 @@ void GameObject::render(Camera *camera, AmbientLight *ambientLight, DirectionalL
     }
 
     for (GameObject *child : children) {
-        child->render(camera, ambientLight, directionalLight, transform);
+        child->render(camera, ambientLight, directionalLight, &resultTransform);
     }
 }
 
@@ -101,6 +101,26 @@ bool GameObject::hasTag(const char *checkTag) {
 void GameObject::clearChildren() {
     children.clear();
     children.shrink_to_fit();
+}
+
+void GameObject::renderDirectionalLightDepthMap(DirectionalLight *directionalLight, Transform *rootTransform) {
+    Transform resultTransform = rootTransform != nullptr ? (*rootTransform + *transform) : *transform;
+
+    if (material != nullptr && meshData != nullptr && material->canCastShadows()) {
+        material->beginDepth();
+        material->applyTransformDirectionalDepth(&resultTransform);
+        material->applyDirectionalLightDepth(directionalLight);
+        meshData->drawDepth();
+        Material::endDepth();
+    }
+
+    for (auto child: children) {
+        child->renderDirectionalLightDepthMap(directionalLight, &resultTransform);
+    }
+}
+
+void GameObject::renderDirectionalLightDepthMap(DirectionalLight *directionalLight) {
+    renderDirectionalLightDepthMap(directionalLight, nullptr);
 }
 
 

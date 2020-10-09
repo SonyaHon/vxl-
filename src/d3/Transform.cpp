@@ -114,4 +114,8 @@ void Transform::setScaleUniform(float value) {
     setScale(value, value, value);
 }
 
+const glm::vec3 &Transform::getPosition() const {
+    return position;
+}
+
 

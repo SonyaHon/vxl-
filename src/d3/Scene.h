@@ -10,12 +10,17 @@
 #include "Camera.h"
 #include "../light/AmbientLight.h"
 #include "../light/DirectionalLight.h"
+#include "../settings/window-settings.h"
 
 class Scene {
     Camera *mainCamera;
+    ViewportSettings *viewportSettings;
     AmbientLight *ambientLight = nullptr;
     DirectionalLight *directionalLight = nullptr;
     std::vector<GameObject *> gameObjects;
+
+    GLuint directionalLightDepthBuffer = 0;
+    GLuint directionalLightDepthMap = 0;
 
 public:
     void addGameObject(GameObject *gameObject);
@@ -30,7 +35,9 @@ public:
 
     void render();
 
-    explicit Scene(Camera *camera);
+    void renderDirectionalLightDepthMap();
+
+    Scene(Camera *camera, ViewportSettings *viewportSettings);
 
     [[nodiscard]] AmbientLight *getAmbientLight() const;
 
@@ -39,6 +46,8 @@ public:
     [[nodiscard]] DirectionalLight *getDirectionalLight() const;
 
     void setDirectionalLight(DirectionalLight *directionalLight);
+
+    GLuint getDepthTexture() const;
 };
 
 

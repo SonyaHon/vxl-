@@ -60,6 +60,8 @@ public:
     Transform operator+(const Transform& right) const;
 
     void setScaleUniform(float value);
+
+    const glm::vec3 &getPosition() const;
 };
 
 

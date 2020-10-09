@@ -86,6 +86,7 @@ void Shader::applyTransform(const Transform *transform) {
 void Shader::applyCamera(const Camera *camera) {
     applyMat4Uniform("projectionMatrix", camera->getProjectionMatrix());
     applyMat4Uniform("viewMatrix", camera->getViewMatrix());
+    applyVec3Uniform("cameraPos", camera->getPosition());
 }
 
 void Shader::applyAmbientLight(AmbientLight *ambientLight) {
@@ -97,4 +98,8 @@ void Shader::applyDirectionalLight(DirectionalLight *directionalLight) {
     applyFloatUniform("directionalStrength", directionalLight->getStrength());
     applyVec3Uniform("directionalDirection", directionalLight->getDirection());
     applyVec3Uniform("directionalColor", directionalLight->getColor());
+}
+
+void Shader::applyDirectionalLightDepth(DirectionalLight *directionalLight) {
+    applyMat4Uniform("lightSpaceMatrix", directionalLight->getLightSpaceMatrix());
 }

@@ -1,6 +1,6 @@
 #version 330 core
 
-in vec3 fragColor;
+in vec2 fragUV;
 in vec3 fragPosition;
 in vec3 fragNormal;
 
@@ -16,6 +16,8 @@ uniform float specularSharpness;
 uniform vec3 specularColor;
 
 uniform vec3 cameraPos;
+
+uniform sampler2D textureSampler;
 
 out vec4 outColor;
 
@@ -33,6 +35,6 @@ void main() {
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), specularSharpness);
     vec3 specular = specularStrength * spec * specularColor;
 
-    vec3 result = (ambient + diffuse + specular) * fragColor;
-    outColor = vec4(result, 1.0);
+//    vec3 result = (ambient + diffuse + specular) * vec3(texture(textureSampler, fragUV).r);
+    outColor = vec4(vec3(texture(textureSampler, fragUV).r), 1.0);
 }
